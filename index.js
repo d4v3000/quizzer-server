@@ -8,20 +8,39 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost:3001"],
+    origin: ["http://localhost:3000"],
   },
 });
 
-const PORT = 3000 || process.env.PORT;
+const PORT = 4000 || process.env.PORT;
 
 io.on("connection", (socket) => {
   console.log("Client connected");
 
-  socket.on("create-lobby", ({ quizId, userName, numOfTeams }) => {
-    const lobbyId = lobbies.createLobby(userName, numOfTeams);
+  socket.on(
+    "create-lobby",
+    ({ quizId, userName, numOfTeams, quizName, numOfQuestions }, callback) => {
+      const lobbyId = lobbies.createLobby(
+        userName,
+        numOfTeams,
+        socket.id,
+        quizName,
+        numOfQuestions
+      );
+      socket.join(lobbyId);
+      socket.emit("lobby-created", lobbyId);
+      callback({
+        id: lobbyId,
+      });
+      console.log(`Player "${userName}" created lobby ${lobbyId}`);
+    }
+  );
+
+  socket.on("join-lobby", ({ userName, lobbyId }) => {
     socket.join(lobbyId);
-    socket.emit("lobby-created", lobbyId);
-    console.log(`Player "${userName}" created lobby ${lobbyId}`);
+    lobbies.joinLobby(userName, lobbyId, socket.id);
+    io.to(lobbyId).emit("joined-lobby", lobbies.lobbies[lobbyId]);
+    console.log(`Player "${userName}" joined lobby ${lobbyId}`);
   });
 });
 
