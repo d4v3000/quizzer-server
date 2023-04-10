@@ -42,6 +42,11 @@ io.on("connection", (socket) => {
     io.to(lobbyId).emit("joined-lobby", lobbies.lobbies[lobbyId]);
     console.log(`Player "${userName}" joined lobby ${lobbyId}`);
   });
+
+  socket.on("join-team", ({ userName, lobbyId, teamId, oldTeam }) => {
+    lobbies.joinTeam(userName, lobbyId, socket.id, teamId, oldTeam);
+    io.to(lobbyId).emit("joined-team", lobbies.lobbies[lobbyId]);
+  });
 });
 
 app.use(cors());
