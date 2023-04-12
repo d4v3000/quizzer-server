@@ -39,13 +39,26 @@ io.on("connection", (socket) => {
   socket.on("join-lobby", ({ userName, lobbyId }) => {
     socket.join(lobbyId);
     lobbies.joinLobby(userName, lobbyId, socket.id);
-    io.to(lobbyId).emit("joined-lobby", lobbies.lobbies[lobbyId]);
+    io.to(lobbyId).emit("joined-lobby", lobbies.lobbies[lobbyId], {
+      message: userName + " joined the lobby",
+      sender: "system",
+    });
     console.log(`Player "${userName}" joined lobby ${lobbyId}`);
   });
 
   socket.on("join-team", ({ userName, lobbyId, teamId, oldTeam }) => {
     lobbies.joinTeam(userName, lobbyId, socket.id, teamId, oldTeam);
+    socket.join(lobbyId + teamId);
+    socket.leave(lobbyId + oldTeam);
     io.to(lobbyId).emit("joined-team", lobbies.lobbies[lobbyId]);
+  });
+
+  socket.on("send-team-message", (message, roomId) => {
+    io.to(roomId).emit("team-message-received", message);
+  });
+
+  socket.on("send-global-message", (message, lobbyId) => {
+    io.to(lobbyId).emit("global-message-received", message);
   });
 });
 
