@@ -53,6 +53,11 @@ io.on("connection", (socket) => {
     io.to(lobbyId).emit("joined-team", lobbies.lobbies[lobbyId]);
   });
 
+  socket.on("edit-team-name", ({ lobbyId, teamId, name }) => {
+    lobbies.editTeamName(lobbyId, teamId, name);
+    io.to(lobbyId).emit("team-name-edited", lobbies.lobbies[lobbyId]);
+  });
+
   socket.on("send-team-message", (message, roomId) => {
     io.to(roomId).emit("team-message-received", message);
   });
