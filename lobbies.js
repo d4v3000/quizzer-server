@@ -16,7 +16,7 @@ function createLobby(userName, numOfTeams, socketId, quizName, numOfQuestions) {
   lobbies[lobbyId] = {
     id: lobbyId,
     teams: [],
-    playersWithoutTeam: [],
+    players: [],
     quizMaster: { id: socketId, name: userName },
     quizName: quizName,
     numOfQuestions: numOfQuestions,
@@ -34,7 +34,7 @@ function createLobby(userName, numOfTeams, socketId, quizName, numOfQuestions) {
 }
 
 function joinLobby(userName, lobbyId, socketId) {
-  lobbies[lobbyId].playersWithoutTeam.push({
+  lobbies[lobbyId].players.push({
     id: socketId,
     name: userName,
     team: null,
@@ -49,6 +49,8 @@ function joinTeam(userName, lobbyId, socketId, teamId, oldTeam) {
     team: teamId,
   });
 
+  _.find(lobbies[lobbyId].players, { id: socketId }).team = teamId;
+
   // find old team and remove player
   if (oldTeam) {
     const playerIndexInTeam = lobbies[lobbyId].teams[
@@ -58,11 +60,6 @@ function joinTeam(userName, lobbyId, socketId, teamId, oldTeam) {
       playerIndexInTeam,
       1
     );
-  } else {
-    const playerIndex = lobbies[lobbyId].playersWithoutTeam.findIndex(
-      (player) => player.id === socketId
-    );
-    lobbies[lobbyId].playersWithoutTeam.splice(playerIndex, 1);
   }
 }
 
@@ -82,15 +79,8 @@ function leaveLobby(socketId, lobbyId) {
     }
   }
 
-  if (!name) {
-    const playerIndex = lobbies[lobbyId].playersWithoutTeam.findIndex(
-      (player) => player.id === socketId
-    );
-    if (playerIndex !== -1) {
-      name = lobbies[lobbyId].playersWithoutTeam[playerIndex].name;
-      lobbies[lobbyId].playersWithoutTeam.splice(playerIndex, 1);
-    }
-  }
+  const playerIndex = _.findIndex(lobbies[lobbyId].players, { id: socketId });
+  lobbies[lobbyId].players.splice(playerIndex, 1);
 
   return name;
 }
