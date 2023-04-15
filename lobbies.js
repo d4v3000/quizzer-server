@@ -71,10 +71,36 @@ function editTeamName(lobbyId, teamId, name) {
   lobbies[lobbyId].teams[_.parseInt(teamId)].name = name;
 }
 
+function leaveLobby(socketId, lobbyId) {
+  let name = "";
+  for (i = 0; i < lobbies[lobbyId].teams.length; i++) {
+    const playerIndexInTeam = lobbies[lobbyId].teams[i].players.findIndex(
+      (player) => player.id === socketId
+    );
+    if (playerIndexInTeam !== -1) {
+      name = lobbies[lobbyId].teams[i].players[playerIndexInTeam].name;
+      lobbies[lobbyId].teams[i].players.splice(playerIndexInTeam, 1);
+    }
+  }
+
+  if (!name) {
+    const playerIndex = lobbies[lobbyId].playersWithoutTeam.findIndex(
+      (player) => player.id === socketId
+    );
+    if (playerIndex !== -1) {
+      name = lobbies[lobbyId].playersWithoutTeam[playerIndex].name;
+      lobbies[lobbyId].playersWithoutTeam.splice(playerIndex, 1);
+    }
+  }
+
+  return name;
+}
+
 module.exports = {
   createLobby,
   joinLobby,
   joinTeam,
   editTeamName,
+  leaveLobby,
   lobbies,
 };

@@ -65,6 +65,22 @@ io.on("connection", (socket) => {
   socket.on("send-global-message", (message, lobbyId) => {
     io.to(lobbyId).emit("global-message-received", message);
   });
+
+  socket.on("disconnecting", () => {
+    const rooms = Array.from(socket.rooms);
+    if (rooms[1]) {
+      const userName = lobbies.leaveLobby(socket.id, rooms[1]);
+      io.to(rooms[1]).emit(
+        "player-disconnect",
+
+        lobbies.lobbies[rooms[1]]
+      );
+      io.to(rooms[1]).emit("global-message-received", {
+        sender: "system",
+        message: `${userName} disconnected`,
+      });
+    }
+  });
 });
 
 app.use(cors());
