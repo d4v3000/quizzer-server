@@ -70,16 +70,27 @@ io.on("connection", (socket) => {
     const rooms = Array.from(socket.rooms);
     if (rooms[1]) {
       const userName = lobbies.leaveLobby(socket.id, rooms[1]);
-      io.to(rooms[1]).emit(
-        "player-disconnect",
-
-        lobbies.lobbies[rooms[1]]
-      );
+      io.to(rooms[1]).emit("player-disconnect", {
+        lobby: lobbies.lobbies[rooms[1]],
+      });
       io.to(rooms[1]).emit("global-message-received", {
         sender: "system",
         message: `${userName} disconnected`,
       });
     }
+  });
+
+  socket.on("kick-player", (socketId, lobbyId) => {
+    const userName = lobbies.leaveLobby(socketId, lobbyId);
+    io.to(lobbyId).emit("player-disconnect", {
+      lobby: lobbies.lobbies[lobbyId],
+      socketId: socketId,
+    });
+    io.to(lobbyId).emit("global-message-received", {
+      sender: "system",
+      message: `${userName} was kicked`,
+    });
+    io.sockets.sockets.get(socketId).disconnect();
   });
 });
 

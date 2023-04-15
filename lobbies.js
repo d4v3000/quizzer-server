@@ -67,7 +67,6 @@ function joinTeam(userName, lobbyId, socketId, teamId, oldTeam) {
 }
 
 function editTeamName(lobbyId, teamId, name) {
-  console.log(lobbies[lobbyId]);
   lobbies[lobbyId].teams[_.parseInt(teamId)].name = name;
 }
 
