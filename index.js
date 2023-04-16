@@ -90,7 +90,25 @@ io.on("connection", (socket) => {
       sender: "system",
       message: `${userName} was kicked`,
     });
-    io.sockets.sockets.get(socketId).disconnect();
+    const rooms = Array.from(io.sockets.sockets.get(socketId).rooms);
+    for (i = 1; i < rooms.length; i++) {
+      io.sockets.sockets.get(socketId).leave(rooms[i]);
+    }
+  });
+
+  socket.on("leave-lobby", (lobbyId) => {
+    const userName = lobbies.leaveLobby(socket.id, lobbyId);
+    io.to(lobbyId).emit("player-disconnect", {
+      lobby: lobbies.lobbies[lobbyId],
+    });
+    io.to(lobbyId).emit("global-message-received", {
+      sender: "system",
+      message: `${userName} left the lobby`,
+    });
+    const rooms = Array.from(socket.rooms);
+    for (i = 1; i < rooms.length; i++) {
+      socket.leave(rooms[i]);
+    }
   });
 });
 
