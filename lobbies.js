@@ -74,12 +74,12 @@ function leaveLobby(socketId, lobbyId) {
       (player) => player.id === socketId
     );
     if (playerIndexInTeam !== -1) {
-      name = lobbies[lobbyId].teams[i].players[playerIndexInTeam].name;
       lobbies[lobbyId].teams[i].players.splice(playerIndexInTeam, 1);
     }
   }
 
   const playerIndex = _.findIndex(lobbies[lobbyId].players, { id: socketId });
+  name = lobbies[lobbyId].players[playerIndex].name;
   lobbies[lobbyId].players.splice(playerIndex, 1);
 
   return name;
