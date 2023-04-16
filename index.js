@@ -66,6 +66,15 @@ io.on("connection", (socket) => {
     io.to(lobbyId).emit("global-message-received", message);
   });
 
+  socket.on("randomize-teams", (lobbyId) => {
+    lobbies.randomizeTeams(lobbyId);
+  });
+
+  socket.on("reset-teams", (lobbyId) => {
+    lobbies.resetTeams(lobbyId);
+    io.to(lobbyId).emit("teams-reset", lobbies.lobbies[lobbyId]);
+  });
+
   socket.on("disconnecting", () => {
     const rooms = Array.from(socket.rooms);
     if (rooms[1]) {

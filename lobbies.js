@@ -85,11 +85,20 @@ function leaveLobby(socketId, lobbyId) {
   return name;
 }
 
+function randomizeTeams(lobbyId) {}
+
+function resetTeams(lobbyId) {
+  lobbies[lobbyId].teams.map((team) => (team.players = []));
+  lobbies[lobbyId].players.map((player) => (player.team = null));
+}
+
 module.exports = {
   createLobby,
   joinLobby,
   joinTeam,
   editTeamName,
   leaveLobby,
+  randomizeTeams,
+  resetTeams,
   lobbies,
 };
