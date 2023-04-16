@@ -68,6 +68,7 @@ io.on("connection", (socket) => {
 
   socket.on("randomize-teams", (lobbyId) => {
     lobbies.randomizeTeams(lobbyId);
+    io.to(lobbyId).emit("teams-randomized", lobbies.lobbies[lobbyId]);
   });
 
   socket.on("reset-teams", (lobbyId) => {

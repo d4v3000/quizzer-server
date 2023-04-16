@@ -1,5 +1,6 @@
 const { customAlphabet } = require("nanoid");
 let _ = require("lodash");
+const { shuffleArray } = require("./helper");
 
 const lobbies = {};
 const alphabet =
@@ -79,13 +80,37 @@ function leaveLobby(socketId, lobbyId) {
   }
 
   const playerIndex = _.findIndex(lobbies[lobbyId].players, { id: socketId });
-  name = lobbies[lobbyId].players[playerIndex].name;
+  if (playerIndex !== -1) {
+    name = lobbies[lobbyId].players[playerIndex].name;
+  }
   lobbies[lobbyId].players.splice(playerIndex, 1);
 
   return name;
 }
 
-function randomizeTeams(lobbyId) {}
+function randomizeTeams(lobbyId) {
+  let shuffledPlayers = lobbies[lobbyId].players.slice();
+  shuffleArray(shuffledPlayers);
+  lobbies[lobbyId].teams.map((team) => (team.players = []));
+  const numOfTeams = lobbies[lobbyId].teams.length;
+  // adding a player to every teams counts as one passthrough
+  let numOfPassthroughs = 0;
+  for (i = 0; i < shuffledPlayers.length; i++) {
+    if (i > numOfTeams * (numOfPassthroughs + 1) - 1) {
+      numOfPassthroughs++;
+    }
+    lobbies[lobbyId].teams[i - numOfTeams * numOfPassthroughs].players.push(
+      shuffledPlayers[i]
+    );
+    const playerIndex = _.findIndex(lobbies[lobbyId].players, {
+      id: shuffledPlayers[i].id,
+    });
+    lobbies[lobbyId].players[playerIndex].team = (
+      i -
+      numOfTeams * numOfPassthroughs
+    ).toString();
+  }
+}
 
 function resetTeams(lobbyId) {
   lobbies[lobbyId].teams.map((team) => (team.players = []));
