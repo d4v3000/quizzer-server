@@ -82,9 +82,18 @@ function leaveLobby(socketId, lobbyId) {
   const playerIndex = _.findIndex(lobbies[lobbyId].players, { id: socketId });
   if (playerIndex !== -1) {
     name = lobbies[lobbyId].players[playerIndex].name;
+    lobbies[lobbyId].players.splice(playerIndex, 1);
+  } else {
+    name = lobbies[lobbyId].quizMaster.name;
+    lobbies[lobbyId].quizMaster = {};
   }
-  lobbies[lobbyId].players.splice(playerIndex, 1);
 
+  if (
+    lobbies[lobbyId].players.length === 0 &&
+    !lobbies[lobbyId].quizMaster.id
+  ) {
+    delete lobbies[lobbyId];
+  }
   return name;
 }
 
