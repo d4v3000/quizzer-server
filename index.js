@@ -127,6 +127,9 @@ app.use(cors());
 app.use(express.json());
 
 app.post("/lobby", (req, res) => {
+  console.log(req.body);
+  console.log(lobbies.lobbies);
+  console.log(lobbies.lobbies[req.body.id]);
   if (lobbies.lobbies[req.body.id]) {
     res.sendStatus(200);
   } else {
