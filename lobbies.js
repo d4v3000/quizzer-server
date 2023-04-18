@@ -31,6 +31,8 @@ function createLobby(userName, numOfTeams, socketId, quizName, numOfQuestions) {
     });
   }
 
+  console.log(lobbies);
+
   return lobbyId;
 }
 
