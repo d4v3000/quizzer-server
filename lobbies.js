@@ -21,6 +21,9 @@ function createLobby(userName, numOfTeams, socketId, quizName, numOfQuestions) {
     quizMaster: { id: socketId, name: userName },
     quizName: quizName,
     numOfQuestions: numOfQuestions,
+    gameStarted: false,
+    question: undefined,
+    currentQuestionIndex: 0,
   };
 
   for (i = 0; i < numOfTeams; i++) {
@@ -97,6 +100,17 @@ function leaveLobby(socketId, lobbyId) {
   return name;
 }
 
+function startGame(lobbyId, question) {
+  lobbies[lobbyId].gameStarted = true;
+  lobbies[lobbyId].question = question;
+  lobbies[lobbyId].currentQuestionIndex = 0;
+}
+
+function setQuestion(lobbyId, question, currentQuestionIndex) {
+  lobbies[lobbyId].question = question;
+  lobbies[lobbyId].currentQuestionIndex = currentQuestionIndex;
+}
+
 function randomizeTeams(lobbyId) {
   let shuffledPlayers = lobbies[lobbyId].players.slice();
   shuffleArray(shuffledPlayers);
@@ -132,6 +146,8 @@ module.exports = {
   joinTeam,
   editTeamName,
   leaveLobby,
+  startGame,
+  setQuestion,
   randomizeTeams,
   resetTeams,
   lobbies,

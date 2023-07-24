@@ -121,17 +121,33 @@ io.on("connection", (socket) => {
       socket.leave(rooms[i]);
     }
   });
+
+  socket.on("start-game", (lobbyId, question) => {
+    lobbies.startGame(lobbyId, question);
+    io.to(lobbyId).emit("game-started", {
+      lobby: lobbies.lobbies[lobbyId],
+    });
+  });
+
+  socket.on("set-question", (lobbyId, question, currentQuestionIndex) => {
+    lobbies.setQuestion(lobbyId, question, currentQuestionIndex);
+    io.to(lobbyId).emit("question-changed", {
+      lobby: lobbies.lobbies[lobbyId],
+    });
+  });
 });
 
 app.use(cors());
 app.use(express.json());
 
-app.post("/lobby", (req, res) => {
-  if (lobbies.lobbies[req.body.id]) {
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(404);
+app.get("/lobby/:id", (req, res) => {
+  const { id } = req.params;
+  const lobby = lobbies.lobbies[id];
+  if (!lobby) {
+    return res.status(404).json({ error: "Lobby not found." });
   }
+
+  return res.status(200).json(lobby);
 });
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
